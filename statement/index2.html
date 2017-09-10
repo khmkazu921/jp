@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+	<meta charset="UTF-8">
+	<title>りっぴーくん2</title>
+	<script type="text/javascript">
+	 function SendToEvent(){
+		 location.href = "event.html?" + escape(document.form1.money.value);
+	 }
+	 function SendToTraffic(){
+		 location.href = "traffic.html?" + escape(document.form1.money.value);
+	 }
+	 function SendToMail(){
+		 location.href = "event.html?" + escape(document.form1.money.value);
+	 }
+	 function SendToFuture(){
+		 location.href = "future.html?" + escape(document.form1.money.value);
+	 }
+	 function SendToPrint(){
+		 location.href = "print.html?" + escape(document.form1.money.value);
+	 }
+	 
+	</script>
+	</head>
+	<body>
+		<h1>経費発生報告：入力型</h1>
+		
+		<?php
+				
+		$dbh = connectDb();
+
+$sth = $dbh->prepare("SELECT * FROM account");
+$sth->execute();
+
+$accountData = array();
+
+while($row = $sth->fetch(PDO::FETCH_ASSOC)){
+    $accountData[]=array(
+    'id'=>$row['id'],
+    'name'=>$row['name']
+    );
+}
+		// JSON形式で出力する
+		header('Content-Type: application/json');
+		echo json_encode( $accountData );
+		exit;
+		}
+		catch (PDOException $e)
+		{
+		// 例外処理
+		die('Error:' . $e->getMessage());
+		}
+		?>
+		
+		<form name="form1">
+			金額：<input name="money"><br>
+			<input type="button" value="オリエン・中間・最終" onClick="SendToEvent()";>
+			<br>
+			<input type="button" value="交通費" onClick="SendToTraffic()";>
+			<br>
+			<input type="button" value="郵送費" onClick="SendToMail()";>
+			<br>
+			<input type="button" value="未来" onClick="SendToEvent()";>
+			<br>
+			<input type="button" value="印刷" onClick="SendToPrint()";>
+		</form>
+		
+		<a href="http://localhost:8888/statement/event.html">イベント系</a>
+		</br>
+		<a href="http://localhost:8888/statement/event.html">交通費</a>
+		</br>
+		<a href="http://localhost:8888/statement/event.html">郵送費</a>
+		
+		<!--
+			 <form action="regist.php" method="post">
+			 日付<br>
+			 <input type="date" name="date"><br>
+			 支払先<br>
+			 <input type="text" name="payee"><br>
+			 内容<br>
+			 <input type="text" name="content"><br>
+			 事業<br>
+			 <input type="text" name="business"><br>
+			 業務内容<br>
+			 <input type="text" name="detailed"><br>
+			 勘定科目<br>
+			 <input type="text" name="account"><br>
+			 金額<br>
+			 <input type="text" name="money"><br>
+			 
+			 <input type="submit">
+		</form>-->
+			
+		<br>
+		<a href="http://localhost:8888/index.html">戻る</a>
+		<br>
+		<a href="http://localhost:8888/statement/index.html">入力型</a>
+		<br>
+		<a href="http://localhost:8888/statement/index2.html">選択型</a>
+	</body>
+</html>
