@@ -5,21 +5,22 @@
 	<body>
 		
 		<form action="setting_table.php" method="post">
-			<select name="item">
-			<option value="account">勘定科目</option>
-			<option value="business">事業</option>
-			<option value="category">カテゴリー</option>
-			<option value="content_detailed">内容詳細</option>
-			<option value="detailed">業務内容</option>
-			<option value="place">場所</option>
-			<option value="list">一覧</option>
-			<option value="staff">スタッフ</option>
-			<option value="statement">精算書</option>
+		<p>	
+			<input type="radio" name="item" value="account"/>勘定科目</br>
+			<input type="radio" name="item" value="business"/>事業</br>
+			<input type="radio" name="item" value="category"/>カテゴリー</br>
+			<input type="radio" name="item" value="content_detailed"/>内容詳細</br>
+			<input type="radio" name="item" value="detailed"/>業務内容</br>
+			<input type="radio" name="item" value="place"/>場所</br>
+			<input type="radio" name="item" value="list"/>一覧</br>
+			<input type="radio" name="item" value="staff"/>スタッフ</br>
+			<input type="radio" name="item" value="statement">精算書</br>
+			<input type="radio" name="item" value="payee">支払先</br>
 
-			</select></br>
-
+			</select></p>
+<p>
 		<input type="submit" value="選択">
-		<input type="reset" value="リセット">
+		<input type="reset" value="リセット"></p>
 		</form>
 		<a href="index.php">経費発生入力フォーム</a>
 	</body>

@@ -18,100 +18,62 @@
 	header('Content-Transfer-Encoding: binary');
 	require_once('functions.php');		
 	$dbh = connectDb();
+
+	$table = array("claim_to","category", "list", "place", "content_detailed", "payee");
+	//array_splice
+	foreach($table as $val) {
+		$st = $dbh->query("SELECT * FROM " . $val);
+		$data[$val] = $st->fetchAll(PDO::FETCH_ASSOC);
+	}
 	
-	$st1 = $dbh->query("SELECT * FROM category");
-	$cat = $st1->fetchAll(PDO::FETCH_ASSOC);
-	$st2 = $dbh->query("SELECT * FROM list");
-	$lis = $st2->fetchAll(PDO::FETCH_ASSOC);
-	$st3 = $dbh->query("SELECT * FROM place");
-	$pla = $st3->fetchAll(PDO::FETCH_ASSOC);
-	
-	// JSON形式で出力する
+		//ここからもう一度。今日中にユーザ指定から出力まで。名前、日付！<自動ソート
+		//その他を選んだ時、任意入力できる。精算先を入力する
 	header('Content-Type: application/json');
 	?>
 	
 	<script>
-	 var cat = <?php echo json_encode( $cat , JSON_UNESCAPED_UNICODE );?>;
-	 var lis = <?php echo json_encode( $lis , JSON_UNESCAPED_UNICODE );?>;
-	 var pla = <?php echo json_encode( $pla , JSON_UNESCAPED_UNICODE );?>;
+	 function selectFilter(element, id) {
+		 if (element[this.name] == this.id) return true;
+		 return false;	
+	 }
 	 
-	 /*
-		document.write("[");
-		for(var i = 0; i < lis.length; i++) {
-		document.write("{");
-		for(key in lis[i]) {
-		document.write(key + ":" + lis[i][key] + ",");
-		}
-		document.write("},");
-		}
-		document.write("]</br>");
-	  */	
- 	
 	 jQuery(document).ready(function($) {//ロードされた時に処理を行う
-
-		 for(var i in cat) {
-			 $("#category").append("<option value=" + cat[i].id + ">" + cat[i].name +  "</option>");
+		 var data = <?=json_encode($data)?>;
+		 //<p></p>にhtmlの出力
+		 for(var key in data) {
+			 var text = key + "<br><select id=" + key + ">";			 
+			 for(var val of data[key])
+				 text += "<option value=" + val.id + ">" + val.name +  "</option>";
+			 $("#statement").append(text + "</select></br>");
 		 }
-
-		 var text = "";		 
-		 for(var i in lis) {
-			 text += "<option value=" + lis[i].id + ">" + lis[i].name +  "</option>";
-		 }
-		 console.log(text);
-		 $("#contents").append(text);
 		 
-		 $('#category').change(function() {
-
-			 var id = $(this).val();
-			 var place_id = {'name':'category','index':id };
-			 $('p').text(id);
-			 
-			 function selectFilter(element, index) {
-				 if (element[this.name] == this.index) return true;
-				 return false;	
+		 //カテゴリー変更されたら選択肢を変更
+		 $('#category').change(function() {	 
+			 var id = {'name':'category', 'id': $(this).val() /*<カテゴリーのvalue*/};
+			 delete data.category;
+			 delete data.claim_to;
+			 for(var key in data) {
+				 var data_f = data[key].filter(selectFilter, id);
+			 	 text = "";
+				 for(var val of data_f)
+					 text += "<option value=" + val.id + ">" + val.name +  "</option>";
+				 // $("#" + key).text(text); 何故か動かないので▼
+				 document.getElementById(key).innerHTML = text;
 			 }
-			 
-			 var lis_f = lis.filter(selectFilter, place_id);
-			 var pla_f = pla.filter(selectFilter, place_id);
-			 var text = "";		 
-			 for(var i in lis_f) {
-				 text += "<option value=" + lis_f[i].id + ">" + lis_f[i].name +  "</option>";
-			 }
-			 for(var i in pla_f) {
-				 text += "<option value=" + lis_f[i].id + ">" + lis_f[i].name +  "</option>";
-			 }
-			 for(var i in lis_f) {
-				 text += "<option value=" + lis_f[i].id + ">" + lis_f[i].name +  "</option>";
-			 }
-			 
-			 $("#contents").text("");
-			 $("#contents").text(text);
-			 
 		 });
 	 });
 	 
 	</script>
-	<?php echo json_encode( $cat , JSON_UNESCAPED_UNICODE );?></br>
-	<?php echo json_encode( $lis , JSON_UNESCAPED_UNICODE );?></br>
-	<?php echo json_encode( $pla , JSON_UNESCAPED_UNICODE );?></br>
 	
-	<form name="statement" method="post" action="set_statement.php">
-		<select id="category"></select></br>
-		<select id="contents"></select></br>
-		<select id="place"></select></br>
-		<select id="cdselection"></select></br>
+	<form method="post" action="set_statement.php">
+		<p id="statement"></p>
 		<input type="text" name="cost" style="text-align: right; "/></input></br>
 		<input type="submit" value="追加">
 	</form>
-	<p></p>
 	<br>
-	<a href="http://localhost:8888/index.html">戻る</a>
+	<a href="index.html">戻る</a>
 	<br>
-	<a href="http://localhost:8888/statement/index.html">入力型</a>
-	<br>
-	<a href="http://localhost:8888/statement/index2.php">選択型</a>
-		</br>
-		<a href="http://localhost:8888/statement/setting.php">設定</a>
+		<a href="setting.php">設定</a>
 		
 	</body>
 </html>

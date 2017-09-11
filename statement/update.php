@@ -34,7 +34,8 @@ $dbh = null;
 	<body>
 		<h1>変更画面</h1> 
 		
-		<?php echo $name;?>
+		<p><?php echo $name;?></p>
+		
 		<form action="update_regist.php" method="post">
 		<?php
 			$f = "</br><input type=\"text\" name=\"";
@@ -47,7 +48,7 @@ $dbh = null;
 			?>
 			
 			<input type="hidden" name="item" value="<?=$item?>">
-			<input type="submit" value="変更する">
+			<p><input type="submit" value="変更する"></p>
 		</form>
 		<a href="setting.php">戻る</a>
 				

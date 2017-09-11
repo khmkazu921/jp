@@ -8,24 +8,48 @@ $password = 'qSJNFXBqw9Z5542D';
 
 try{
 	$dbh = new PDO($dsn, $user, $password);
-	$item = htmlspecialchars($_POST['item']);
+	$item = 'statement';
 	$sql = "SELECT * FROM " . $item;
-	$statement = $dbh -> query($sql);
-	$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-	$row = $data[0];
+	$st1 = $dbh -> query($sql);
+	$data = $st1->fetchAll(PDO::FETCH_ASSOC);
+	$row = $data[0];//キーの登録
+	$param = array();
 } catch (PDOException $e) {
 	print('Error:'.$e->getMessage());
 	die();
 }
+
+$insert = "INSERT INTO statement (" . $item . " SET ";
+foreach (array_keys($row) as $_POST) {
+	$insert .= $val . ", ";
+}
+echo var_dump($_POST);
+
+/*
+   $post = $_POST[$val];
+   if(strcmp($val,'id') != 0) {
+		$update .= $val . " = :" . $val . " , ";
+   }
+   $param += array(":".$val => $post);
+ */
+
+$update = rtrim($update, ', ');
+
+$st2 = $dbh->prepare($update);
+$st2->execute($param);
+
+$dbh = null;
 ?>
 
 <!DOCTYPE html>
-<html lang="ja">
-	<meta charset="UTF-8">
-	<title>設定画面（表）</title>
+<html>
+	<head>
+		<title>変更完了</title>
+	</head>
 	<body>
-		<h1>挿入・変更・削除</h1>
-		<table border='1'>			
+		<h1>変更画面</h1>
+		<p>変更完了しました。</p>
+		<table border='1'>
 			<tr>
 				<?php
 				foreach (array_keys($row) as $val) {
@@ -55,7 +79,6 @@ try{
 				<td>
 					<form action="update.php" method="post">
 						<input type="submit" value="変更する">
-
 						<?php
 						$f = "<input type=\"hidden\" name=\"";
 						$m = "\" value = \"";
@@ -80,23 +103,8 @@ try{
 			<?php
 			}
 			?>
-			<tr>
-				<form action="insert.php" method="post">
-					<?php
-					foreach (array_keys($row) as $val) {
-					?>
-						<td>
-							<input type="text" name="<?=$val?>" size=10>
-						</td>
-					<?php
-					}
-					?>
-					<td><input type="submit" value="挿入する"></td><td></td>
-					<input type="hidden" name="item" value="<?=$item?>">
-					<p>
-				</form>
-			</tr>			
-		</table>
-		<p><a href="setting.php">テーブル選択画面</a></p>
+		</table></br>
+		<a href="setting.php">戻る</a>
 	</body>
 </html>
+
