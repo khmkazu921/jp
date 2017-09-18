@@ -19,6 +19,7 @@ if (!isset($_POST['id'])  || !is_numeric($_POST['id']) ){
 
 $item = htmlspecialchars($_POST['item']);
 $sql = "SELECT * FROM " . $item;
+echo $item;
 $st1 = $dbh -> query($sql);
 $data = $st1->fetchAll(PDO::FETCH_ASSOC);
 $row = $data[0];
@@ -28,7 +29,7 @@ foreach (array_keys($row) as $val) {
 	$delete .= $val . " = '" . $_POST[$val] . "' AND ";
 }
 $delete = rtrim($delete, ', AND');
-
+echo $delete;
 $st2 = $dbh->prepare($delete);
 $st2->execute();
 

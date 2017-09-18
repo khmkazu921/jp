@@ -46,9 +46,93 @@ try{
 		$st2 = $dbh->prepare($insert);
 		$st2->execute($param);
 
+		echo var_dump($param);
+		echo $insert;
 		$dbh = null;
 		?>
 		<p>登録が完了しました。<br /><a href="setting.php">戻る</a></p>
+		<?php
+		echo var_dump($_POST);
+		?>
+
+		
+	</body>
+
+	<h1>挿入</h1>
+	<form action="insert.php" method="post">
+		<?php
+		foreach (array_keys($row) as $val) {
+			echo $val;
+		?>
+			<br>
+			<input type="text" name="<?=$val?>"><br>
+		<?php
+		}
+		?>
+		<input type="hidden" name="item" value="<?=$item?>">
+		<input type="submit">
+	</form>
+	
+	<table border='1'>
+		
+		<tr>
+			<?php
+			foreach (array_keys($row) as $val) {
+			?>
+				<td>
+					<?=$val?>
+				</td>
+			<?php
+			}
+			?>
+			<td>変更</td><td>削除</td>
+		</tr>
+		<?php
+		foreach (array_values($data) as $row) {
+		?>
+			<?php
+			foreach (array_values($row) as $val) {
+			?>
+				<td>
+					<?php
+					echo $val;
+					?>
+				</td>
+			<?php
+			}
+			?>
+			<td>
+				<form action="update.php" method="post">
+					<input type="submit" value="変更する">
+					
+					<?php
+					$f = "<input type=\"hidden\" name=\"";
+					$m = "\" value = \"";
+					$b = "\">";
+					foreach ($row as $key2 => $val2) {
+						echo $f . $key2 . $m . $row[$key2] . $b;
+					}							   
+					$dbh = null;
+					?>
+					<input type="hidden" name="item" value="<?=$item?>">
+					
+				</form>
+			</td>
+			<td>
+				<form action="delete.php" method="post">
+					<input type="submit" value="削除する">
+					<input type="hidden" name="id" value="<?=$row["id"]?>">
+					<input type="hidden" name="item" value="<?=$item?>">
+					<input type="hidden" name="name" value="<?=$row["name"]?>">
+				</form>
+			</td>
+		</tr> 
+		<?php
+		}
+		?>
+		
+	</table>
+	<a href="setting.php">戻る</a>
 	</body>
 </html>
 

@@ -1,45 +1,54 @@
 <?php
+header('Content-type: text/plain; charset=UTF-8');
+header('Content-Transfer-Encoding: binary');
 
-header("Content-type: text/html; charset=utf-8");
+require_once('functions.php');//注意
 
-$dsn = 'mysql:host=localhost;dbname=form_study;charset=utf8';
-$user = 'root';
-$password = 'qSJNFXBqw9Z5542D';
+$dbh = connectDb();
+$table = array("statement","claim_to","category", "list", "place", "content_detailed", "payee");
 
-try{
-	$dbh = new PDO($dsn, $user, $password);
-	$item = 'statement';
-	$sql = "SELECT * FROM " . $item;
-	$st1 = $dbh -> query($sql);
-	$data = $st1->fetchAll(PDO::FETCH_ASSOC);
-	$row = $data[0];//キーの登録
-	$param = array();
-} catch (PDOException $e) {
-	print('Error:'.$e->getMessage());
-	die();
+foreach($table as $val) {
+    $st = $dbh->query("SELECT * FROM " . $val);
+    $data[$val] = $st->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$insert = "INSERT INTO statement (" . $item . " SET ";
-foreach (array_keys($row) as $_POST) {
-	$insert .= $val . ", ";
-}
+$statement_name = $data["statement"][0];
+
+echo var_dump($data);
+
 echo var_dump($_POST);
 
 /*
-   $post = $_POST[$val];
-   if(strcmp($val,'id') != 0) {
-		$update .= $val . " = :" . $val . " , ";
-   }
-   $param += array(":".$val => $post);
- */
+$auto_data = array(
+	"date"  => $_POST["date"],
+   "payee" => $_POST["payee"],
+   "content" => $_POST["content"],
+   "business" => ;
+   
+*/
+	
+$insert = "INSERT INTO statement (";
+foreach ($statement_name as $key => $val) {
+	$insert .= $key . ", ";
+}
 
-$update = rtrim($update, ', ');
+
+
+$insert = rtrim($insert, ', ') . ")" . " VALUES (";
+foreach ($statement_name as $key => $val) {
+	$insert .= $val . ", ";
+}
+
+$insert = rtrim($insert, ', ') . ")";
+echo var_dump($insert);
 
 $st2 = $dbh->prepare($update);
 $st2->execute($param);
 
 $dbh = null;
 ?>
+
+<?php /*
 
 <!DOCTYPE html>
 <html>
@@ -108,3 +117,4 @@ $dbh = null;
 	</body>
 </html>
 
+*/ ?>
