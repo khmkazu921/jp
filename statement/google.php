@@ -51,7 +51,7 @@ if (isset($_SESSION['token'])) {
 // トークンがセットされていたら
 if ($client->getAccessToken()) {
     try {
-        echo "Google Drive Api 連携完了！ <a href='upload.php'>アップロード</a>";
+        echo "Google Drive Api 連携完了！ <form action='output.php' method='post'><select name='month'><option value='8'>8月</option></select><input type='submit' value='作成'></form>";
 		$_SESSION['client'] = $client;
     } catch (Google_Exception $e) {
         echo $e->getMessage();

@@ -107,5 +107,5 @@ echo $_SESSION['staff'];
 <a href="google.php">ログイン</a></br>
 <a href="setting.php">設定</a></br>
 <a href="output.php">出力</a>
-	</body>
+</body>
 </html>
