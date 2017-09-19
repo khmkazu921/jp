@@ -2,12 +2,10 @@
 
 header("Content-type: text/html; charset=utf-8");
 
-$dsn = 'mysql:host=localhost;dbname=form_study;charset=utf8';
-$user = 'root';
-$password = 'qSJNFXBqw9Z5542D';
+require_once('functions.php');		
 
 try{
-	$dbh = new PDO($dsn, $user, $password);
+	$dbh = connectDb();
 	$item = htmlspecialchars($_POST['item']);
 	$sql = "SELECT * FROM " . $item;
 	$statement = $dbh -> query($sql);
