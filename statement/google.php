@@ -1,23 +1,4 @@
 <?php
-/*
-define('CLIENT_ID', '709072939097-hbun9dp9cjuq9q45bsoqrverfhp49esk.apps.googleusercontent.com');
-define('CALLBACK_URL', 'http://localhost:8888/statement/start.php');
-define('AUTH_URL', 'https://accounts.google.com/o/oauth2/auth');
-
-$querys = array(
-	'client_id' => CLIENT_ID,
-	'redirect_uri' => CALLBACK_URL,
-	'scope' => 'https://www.googleapis.com/auth/userinfo.profile',
-	'response_type' => 'code',
-);
-
-$url = 'https://accounts.google.com/o/oauth2/auth?' . http_build_query($querys);
-
-echo "<a href='" . $url . "'>ログイン</a>";
-
-header("Location: " . AUTH_URL . '?' . http_build_query($params));
- */
-
 // ライブラリ読み込み
 require_once __DIR__ . '/vendor/autoload.php';
 // セッションスタート
@@ -62,5 +43,4 @@ if ($client->getAccessToken()) {
     $authUrl = $client->createAuthUrl();
     echo '<a href="'.$authUrl.'">アプリケーションのアクセスを許可してください。</a>';
 }
-//unset($_SESSION['token'];
 ?>
