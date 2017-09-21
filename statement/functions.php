@@ -1,5 +1,39 @@
 <?php
 
+class Staff
+{
+    public $name = "";
+	public $deps = "";
+	public $staffid = "";
+	public $mail = "";
+
+	//userinfo is aouth v3
+	//array
+	function __construct(array $staff) {
+		$this->name = $staff["name"];
+		$this->staffid = $staff["sub"];
+		$this->mail = $staff["mail"]; 
+	}
+}
+
+function login_confirmation() {
+	if(!isset($_SESSION['staff'])) {
+		header('Location: http://'.$_SERVER['HTTP_HOST'].'/statement/google.php/' ,true, 301);
+		exit;
+	}
+}
+
+function getGoogleUserInfo($accessToken) {
+    if (empty($accessToken)) return null;
+	$q = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token='.$accessToken;
+	$json = file_get_contents($q);
+	$userInfo = json_decode($json,true);
+    if (empty($userInfo)) {
+        return null;
+    }
+    return $userInfo;
+}
+
 function connectDb() {
 
 	define('DSN','mysql:host=localhost;dbname=form_study');

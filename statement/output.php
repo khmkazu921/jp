@@ -5,12 +5,14 @@
 		<?php
 		session_start();
 		require_once('functions.php');		
-
+		
 		require_once(dirname(__FILE__) . '/PHPExcel/PHPExcel.php');
 		require_once(dirname(__FILE__) . '/PHPExcel/PHPExcel/IOFactory.php');
 
 		header('Content-type: text/html; charset=UTF-8');
 
+		login_confirmation();
+		
 		try{
 			$dbh = connectDb();
 			$month = $_POST['month'];
@@ -123,6 +125,9 @@
 			}
 		}
 
+		echo "zip完了</br>";
+
+		//多分ここでDriveAPIを利用するリクエストを送っていない
 		require_once __DIR__ . '/vendor/autoload.php';
 		session_start();
 
@@ -160,7 +165,7 @@
 
 		//	removeDir($foldername.'.zip');
 		//	remoceDir($foldername);
-
+/*
 		function readVideoChunk ($handle, $chunkSize)
 		{
 			$byteCount = 0;
@@ -203,7 +208,7 @@
 				return ;
 			}
 		}
-
+*/
 		echo "完了";
 
 		?>

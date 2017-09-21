@@ -7,50 +7,56 @@ $client->setClientId('709072939097-hbun9dp9cjuq9q45bsoqrverfhp49esk.apps.googleu
 $client->setClientSecret('u3-EXdB_660nU5HYxCYRoaB9');
 $client->setRedirectUri('http://localhost:8888/statement/google.php');
 $service = new Google_Service_Drive($client);
-$status = "none";
-$dbh = connectDb();
 
+//リダイレクトされてきた場合に更新してトークンをセット
+//2回目は飛ばす
 if (isset($_GET['code'])) {
-    $client->authenticate($_GET['code']);
-    $_SESSION['token'] = $client->getAccessToken();
-    header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
-    exit;
+	$client->authenticate($_GET['code']);
+	$_SESSION['token'] = $client->getAccessToken();
+	header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
+	exit;
 }
+
+//トークンがセットされていたら
 if (isset($_SESSION['token'])) {
-    $client->setAccessToken($_SESSION['token']);
-}
-if ($client->getAccessToken()) {
-    try {
-        echo "Google Drive Api 連携完了！ <form action='output.php' method='post'><select name='month'><option value='8'>8月</option></select><br><input type='submit' value='作成'></form>";
-		$_SESSION['client'] = $client;
-    } catch (Google_Exception $e) {
+	try {
+		//		$client->setAccessToken($_SESSION['token']);
+		//ユーザ情報の収集
+		$staff = getGoogleUserInfo($_SESSION['token']['access_token']);
+		
+		//収集できなかったらやり直す
+		if(empty($staff)) {
+			unset($_SESSION);
+			header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
+			exit;
+		}
+		$staffid = $staff['sub'];
+		
+		//DB内のユーザ検索
+		$dbh = connectDb();
+		$st = $dbh->prepare('SELECT * FROM staff WHERE staffid = ?');
+		$st->execute(array($staffid));
+
+		//ユーザが存在した時のみSESSIONにstaffを追加
+		if($st->fetch(PDO::FETCH_ASSOC)) {		
+			$_SESSION['staff'] = $staff;
+			$_SESSION['client'] = $client;
+			header('Location: http://'.$_SERVER['HTTP_HOST']."/statement/start.php");
+			exit;
+		}
+	} catch (PDOException $e) {
         echo $e->getMessage();
     }
-	$userid = getGoogleUserInfo($_SESSION['token']['access_token']);
-} else {
+}
+
+//トークンがセットされていなかったら
+else {
     // 認証用URL取得
-    $client->setScopes(array(Google_Service_Oauth2::PLUS_LOGIN, Google_Service_Oauth2::PLUS_ME, Google_Service_Oauth2::USERINFO_EMAIL, Google_Service_Oauth2::USERINFO_PROFILE));
+    $client->setScopes(Google_Service_Oauth2::USERINFO_PROFILE);
     $authUrl = $client->createAuthUrl();
     echo '<a href="'.$authUrl.'">アプリケーションのアクセスを許可してください。</a>';
 }
 
-function getGoogleUserInfo($accessToken) {
-    if (empty($accessToken)) {
-        return null;
-    }
-
-	$q = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token='.$accessToken;
-	$json = file_get_contents($q);
-	$userInfo = json_decode($json,true);
-
-	echo var_dump($userInfo);
-
-    if (empty($userInfo)) {
-        return null;
-    }
-	
-    return $userInfo;
-}
-
-unset($_SESSION['token']);
 ?>
+
+<html>

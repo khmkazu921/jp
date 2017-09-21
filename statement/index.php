@@ -7,33 +7,33 @@ header('Content-type: text/plain; charset=UTF-8');
 header('Content-Transfer-Encoding: binary');
 require_once('functions.php');		
 
-$dbh = connectDb();
-
-$d_table = array("category", "list", "place", "payee", "destination");
+//ログイン検証
+login_confirmation();
 
 $staff = $_POST['staff'];
-if($staff !== "") {
-	$_SESSION['staff'] = $staff;
-}
-
 $bill_to = $_POST['bill_to'];
 
-echo var_dump($_POST);
+//listだけcategoryによって絞る
+$dbh = connectDb();
+$sql = "";
+if(isset($_POST['category']))
+	$sql = "SELECT * FROM list WHERE category='" . $_POST['category'] . "'";
+$st = $dbh->query($sql);
+$data['list'] = $st->fetchAll(PDO::FETCH_ASSOC);
 
-
+//その他は普通に取得
+$d_table = array("category", "place", "payee", "destination");
 foreach($d_table as $val) {
 	$st = $dbh->query("SELECT * FROM " . $val);
 	$data[$val] = $st->fetchAll(PDO::FETCH_ASSOC);
 }//データベース取得
-
-echo var_dump($data['destination']);
 
 header('Content-Type: application/json');
 ?>
 
 <head>
 	<meta charset="UTF-8">
-	<title>りっぴーくん2</title>
+	<title>りっぴーくん</title>
 	<script type="text/javascript"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
@@ -73,8 +73,8 @@ header('Content-Type: application/json');
 	 //contentのオプションを表示
 	 function contentOption(data, category) {
 		 //カテゴリーに当てはまるものを抽出
-		 var id = {'name':'category', 'id': category}; //カテゴリーのvalue
-		 var list_f = data.list.filter(selectFilter, id);		 
+		 //var id = {'name':'category', 'id': category}; //カテゴリーのvalue
+		 var list_f = data.list;//.filter(selectFilter, id);		 
 		 //内容の表示
 		 var text = "<select name='name' id='content-select'>";
 		 for(var val of list_f) {
@@ -121,13 +121,15 @@ header('Content-Type: application/json');
 		 var list_f = list.filter(selectFilter, li);
 		 
 		 if(business[cat_id] != null && account[cat_id] != null && business_detailed[cat_id] != null) {
-			 var hidden = "<input type='hidden' value='" + business[cat_id] + "' name='business'>";
-			 hidden += "<input type='hidden' value='" + account[cat_id] + "' name='account'>";
-			 hidden += "<input type='hidden' value='" + business_detailed[cat_id] + "' name='business_detailed'>";
-			 hidden += "<input type='hidden' value='" + content + "' name='name'>";
-			 hidden += "<input type='hidden' name='staff' value='<?=$staff?>'>";
-			 hidden += "<input type='hidden' name='bill_to' value='<?=$bill_to?>'>";
-			 hidden += "<input type='hidden' name='item' value='statement'></br>";
+			 var behind_text = "<input type='hidden' value='";
+			 var behind_text2 = "<input type='hidden' name='";
+			 var hidden = behind_text + business[cat_id] + "' name='business'>";
+			 hidden += behind_text + account[cat_id] + "' name='account'>";
+			 hidden += behind_text + business_detailed[cat_id] + "' name='business_detailed'>";
+			 hidden += behind_text + content + "' name='name'>";
+			 hidden += behind_text2 + "staff' value='<?=$staff?>'>";
+			 hidden += behind_text2 + "bill_to' value='<?=$bill_to?>'>";
+			 hidden += behind_text2 + "item' value='statement'></br>";
 			 document.getElementById('hidden').innerHTML = hidden;
 		 } else {
 			 console.log("ERROR");
@@ -141,9 +143,14 @@ header('Content-Type: application/json');
 		 var con_val = document.getElementById('content-select').value;
 		 var pla_val = document.getElementById('place-select').value;
 		 var des_val = document.getElementById('destination-select').value;
-		 text = shapingContentName(con_val, pla_val, des_val, data, <?=$_POST['category']?>);
+		 text = shapingContentNameA(con_val, pla_val, des_val, data, <?=$_POST['category']?>);
 		 var out = "<input type='text' name='name' id='textbox-content' value='" + text + "'></br>";
 		 document.getElementById('out-of-textbox-content').innerHTML = out;
+	 }
+
+	 function tBoxSheets() {
+		 var out = "<input type='number' name='sheets' id='textbox-sheets'></br>";
+		 document.getElementById('out-of-textbox-sheets').innerHTML = out;
 	 }
 	 
 	 //支払先をテキストボックスで入力
@@ -166,18 +173,29 @@ header('Content-Type: application/json');
 	  *　@param data jsonデータ
 	  */
 	 
-	 //名前の整形
-	 function shapingContentName(content, place, destination, data, cat_id) {
+	 //交通費、会場費名前の整形
+	 function shapingContentNameA(content, place, destination, data, disp_id) {
 		 var cat_name = "";
-		 //カテゴリーの名前の抽出
-		 if(cat_id == 1) {
-			 cat_name = data.category.filter(
-				 function(item) { if(item.id == cat_id) return true; }
-			 )[0].name;
+		 var con_name = "";
+		 //カテゴリーの名前の抽出/交通費
+		 switch (disp_id) {
+			 case 1:
+				 cat_name = "交通費";
+				 var con_name = content + "@" + place + " " + cat_name;
+				 break;
+			 case 2:
+				 cat_name = "の会場代";
+				 con_name = content + "@" + place + cat_name;
+				 break;
+			 default:
+				 break;
 		 }
-		 //名前の整形
-		 var con_name = content + "@" + place + " " + cat_name;
 		 return con_name;
+	 }
+
+	 //その他の項目名の整形
+	 function shapingContentNameB(content, data, disp_id) {
+		 
 	 }
 	 
 	 function displayCategory(data, cat_id) {
@@ -185,8 +203,24 @@ header('Content-Type: application/json');
 			 data.category.filter(
 				 function(item) { if(item.id == cat_id) return true; }
 			 )[0].name;
-	 };
+	 }
 	 
+	 function dispId() {
+		 var disp_id;
+		 if(this.match(/交通費/)) {
+			 disp_id = 0;
+		 } else if(this.match(/会場/)) {
+			 disp_id = 1;
+		 } else if(this.match(/枚数/)) {
+			 disp_id = 2;
+		 } else {
+			 disp_id = 3;
+		 }
+		 return disp_id;
+	 }
+
+	 
+		
 	 //ロードされた時に処理を行う
 	 jQuery(document).ready(function($) {
 		 
@@ -203,8 +237,24 @@ header('Content-Type: application/json');
 		 var con_first = contentOption(data, cat_id);
 		 //行き先のオプション表示
 		 var des_first = destinationOption(data, cat_id);
-		 
-		 var content = shapingContentName(con_first, pla_first, data, cat_id) + "\r\n" + des_first;
+
+
+		 var disp = document.getElementById('content-select').value;
+		 console.log(disp);
+		 var disp_id = disp.dispId();
+		 //注意
+		 var content;
+		 switch (disp_id) {
+			 case 0:
+				 content = shapingContentNameA(con_first, pla_first, data, disp_id) + "\r\n" + des_first;
+			 case 1:
+				 content = shapingContentNameA(con_first, pla_first, data, disp_id);
+			 case 2:
+				 content = shapingContentNameB(con_first, data);
+			 default:
+				 content = con_first;
+		 }		 
+
 		 setHidden(data.list, cat_id, content);
 
 		 //支払先を触るとtextBoxの中身を変更する
@@ -217,19 +267,44 @@ header('Content-Type: application/json');
 				 content = shapingContentName(con_val, pla_val, data, cat_id) + "\r\n" + des_val;
 				 tBoxPayee();
 				 setHidden(data.list, cat_id, content);//ここでcontentの値を渡す
-			 }
+			 }			 
 		 });
-		 
-		 //内容を触るとtextBoxの中身を変更する
-		 $("#content-select").change(function() {
-			 console.log(content_check);
-			 if(content_check) {
-				 var pla_val = document.getElementById('place-select').value;
-				 var des_val = document.getElementById('destination-select').value;
-				 content = shapingContentName(this.value, pla_val, data, cat_id) + "\r\n" + des_val;
-				 tBoxContent();
-				 setHidden(data.list, cat_id, content);//ここでcontentの値を渡す
+
+		 //内容を触ると表示画面が変更される
+		 //内容に交通費会場代が含まれている時、disp_id==0：placeを表示
+		 //内容に枚数などが含まれている時、disp_id==1：枚数を表示
+		 //その他はdisp_id：表示しない
+		 $(document).on('change', '#content-select', function(){
+			 console.log("asdf");
+			 var disp_id = this.value.dispId();
+			 switch (disp_id) {
+				 case 0:
+					 if(content_check) {
+						 document.getElementById('out-of-textbox-sheets').innerHTML = "";
+						 var pla_val = document.getElementById('place-select').value;
+						 var des_val = document.getElementById('destination-select').value;
+						 content = shapingContentNameA(this.value, pla_val, data, cat_id) + "\r\n" + des_val;		 
+						 tBoxContent();
+					 }
+					 break;
+				 case 1:
+					 if(content_check) {
+						 document.getElementById('out-of-textbox-sheets').innerHTML = "";
+						 var pla_val = document.getElementById('place-select').value;
+						 var des_val = document.getElementById('destination-select').value;
+						 content = shapingContentNameA(this.value, pla_val, data, cat_id);		 
+						 tBoxContent();
+					 }
+					 break;
+				 case 2:
+					 content = this.value;
+					 tBoxSheets();
+					 break;
+				 default:
+					 
+					 //document.getElementById('place').innerHTML = "";
 			 }
+			 setHidden(data.list, cat_id, content);//ここでcontentの値を渡す
 		 });
 		 
 		 //場所を触るとtextBoxの中身を変更する
@@ -238,7 +313,7 @@ header('Content-Type: application/json');
 				 var con_val = document.getElementById('content-select').value;
 				 var des_val = document.getElementById('destination-select').value;
 				 console.log(this.value);
-				 content = shapingContentName(con_val, this.value, data, cat_id) + "\r\n" + des_val;
+				 content = shapingContentNameA(con_val, this.value, data, cat_id) + "\r\n" + des_val;
 				 tBoxContent();
 				 setHidden(data.list, cat_id, content);//ここでcontentの値を渡す
 			 }
@@ -250,7 +325,7 @@ header('Content-Type: application/json');
 				 var con_val = document.getElementById('content-select').value;
 				 var pla_val = document.getElementById('place-select').value;
 				 console.log(this.value);
-				 content = shapingContentName(con_val, pla_val, data, cat_id) + "\r\n" + this.value;
+				 content = shapingContentNameA(con_val, pla_val, data, cat_id) + "\r\n" + this.value;
 				 tBoxDestination();
 				 setHidden(data.list, cat_id, content);//ここでcontentの値を渡す
 			 }
@@ -261,7 +336,7 @@ header('Content-Type: application/json');
 			 var con_val = this.value;
 			 var pla_val = document.getElementById('place-select').value;
 			 var des_val = document.getElementById('destination-select').value;
-			 content = shapingContentName(con_val, pla_val, data, cat_id) + "\r\n" + des_val;
+			 content = shapingContentNameA(con_val, pla_val, data, cat_id) + "\r\n" + des_val;
 			 setHidden(data.list, cat_id, content);
 		 });
 
@@ -270,7 +345,7 @@ header('Content-Type: application/json');
 			 var con_val = document.getElementById('content-select').value;
 			 var pla_val = document.getElementById('place-select').value;
 			 var des_val = this.value;
-			 var content = shapingContentName(con_val, pla_val, data, cat_id) + "\r\n" + des_val;
+			 var content = shapingContentNameA(con_val, pla_val, data, cat_id) + "\r\n" + des_val;
 			 setHidden(data.list, cat_id, content);
 		 });
 	 });
@@ -302,7 +377,8 @@ header('Content-Type: application/json');
 		内容/場所</br>
 		<span id="content"></span>@<span id="place"></span></br>
 		<span id="out-of-textbox-content"></span>
-		<input type="button" class="button button-border-primary button-rounded" value="変更" onClick="tBoxContent()"></br>
+		<input type="button" class="button button-border-primary button-rounded" value="変更" onClick="tBoxContent()">
+		<span id="out-of-textbox-sheets"></span></br>
 
 		行き先</br>
 		<span id="destination"></span>
@@ -321,6 +397,6 @@ header('Content-Type: application/json');
 	<br>
 	<a href="start.php">戻る</a></br>
 	<a href="setting.php">設定</a>
-
+	
 </body>
 </html>
