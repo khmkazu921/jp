@@ -2,7 +2,6 @@
 session_start();
 require_once('functions.php');
 login_confirmation();
-
 $staff = new Staff($_SESSION['staff']);
 echo var_dump($staff);
 

@@ -17,16 +17,15 @@ if (isset($_GET['code'])) {
 	exit;
 }
 
+//ログインが未完成な気がする
 //トークンがセットされていたら
 if (isset($_SESSION['token'])) {
 	try {
-		//		$client->setAccessToken($_SESSION['token']);
 		//ユーザ情報の収集
 		$staff = getGoogleUserInfo($_SESSION['token']['access_token']);
-		
+		unset($_SESSION['token']);
 		//収集できなかったらやり直す
 		if(empty($staff)) {
-			unset($_SESSION);
 			header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
 			exit;
 		}
@@ -45,8 +44,8 @@ if (isset($_SESSION['token'])) {
 			exit;
 		}
 	} catch (PDOException $e) {
-        echo $e->getMessage();
-    }
+		echo $e->getMessage();
+	}
 }
 
 //トークンがセットされていなかったら
@@ -57,6 +56,6 @@ else {
     echo '<a href="'.$authUrl.'">アプリケーションのアクセスを許可してください。</a>';
 }
 
+
 ?>
 
-<html>
