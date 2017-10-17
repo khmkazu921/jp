@@ -71,7 +71,7 @@
 					header('Content-Type: application/octet-stream');
 					header('Cache-Control: max-age=0');
 					$writer = PHPExcel_IOFactory::createWriter($book, 'Excel2007');
-					$file_name = "【39th".$bill_to['bill_to']."】".$staff['staff']."＠".$month."月分精算書.xlsx";
+					$file_name = "【40th".$bill_to['bill_to']."】".$staff['staff']."＠".$month."月分精算書.xlsx";
 					$writer->save($str . $file_name);
 				}	
 			}	

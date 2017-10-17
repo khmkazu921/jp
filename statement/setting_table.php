@@ -23,6 +23,7 @@ die();
 	<body>
 		<?php echo $sql; ?>
 		<h1>挿入</h1>
+
 		<form action="insert.php" method="post">
 			<?php
 			foreach (array_keys($row) as $val) {
@@ -37,8 +38,7 @@ die();
 				<input type="submit">
 		</form>
 
-		<table border='1'>
-			
+		<table border='1'>	
 			<tr>
 				<?php
 				foreach (array_keys($row) as $val) {

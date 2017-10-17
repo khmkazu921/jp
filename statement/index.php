@@ -41,11 +41,10 @@
 			<script type="text/javascript" src="js/buttons.js"></script>
 			<script>
 			 //ここをデータとしてセットする
-			 var account = ["交通費", "通信費"];
-			 var business_detailed = ["集客", "説明会"];
-			 var business = ["全体", "未来","ありえない"];
-			 var bill_to = ["つくば", "事務局"];
-			 
+			 var account = ["交通費", "通信費", "消耗品費", "図書費", "印刷費", "会議費", "レンタル費", "会費", "適用不明"];
+			 var business_detailed = ["MTG", "支部維持その他", "集客", "説明会", "集客イベント", "選考会", "二次選考", "学生集客その他", "継続訪問", "新規訪問", "訪問その他", "実地フォロー", "初回イベント", "中間イベント", "最終イベント", "学生フォローその他", "全社業務", "その他"];
+			 var business = ["全体","インターン","グローバル","未来"];
+			 var bill_to = ["つくば", "事務局", "未来", "プロモ"];
 			 var content_check = false;
 			 var place_check = false;
 			 var payee_check = false;
@@ -203,7 +202,6 @@
 			 
 			 //destinationのオプションを表示
 			 function dispDestinationOption(data, category) {
-				 console.log(data.destination);
 				 var dest = data.destination;
 				 //行き先の表示
 				 var text = "<select name='destination' id='destination-select'>";
@@ -274,16 +272,21 @@
 				 for(var val of place_f) {
 					 text += "<option value='" + val.name + "'>" + val.name +  "</option>";
 				 }
+				 
 				 text += "</select><br>";
 				 document.getElementById('place').innerHTML = text;
-				 return place_f[0].name;
+				 if(place_f[0] == null) {
+					 return "";
+				 } else {
+					 return place_f[0].name;
+				 }
 			 }
-
+			 
 			 //placeのタイトルの設置
 			 function dispPlaceTitle() {
 				 document.getElementById('place-title').innerHTML = "場所<br>";
 			 }
-
+			 
 			 function disappPlaceTitle() {
 				 document.getElementById('place-title').innerHTML = "";
 			 }
@@ -371,23 +374,66 @@
 				 //カテゴリーの名前の抽出/交通費
 				 switch (disp_id) {
 					 case 0:
-						 cat_name = "交通費";
+						 if(cat_id == 6){
+							 cat_name = "交通費(高校生)";
+						 } else {
+							 cat_name = "交通費";
+						 }
 						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
 						 break;
 					 case 1:
-						 cat_name = "の会場代";
+						 if(cat_id == 6){
+							 cat_name = "の会場代(高校生)";
+						 } else {
+							 cat_name = "の会場代";
+						 }
 						 con_name = content + "@" + place + cat_name;
 						 break;
+					 case 3:
+						 if(cat_id == 6){
+							 cat_name = "燃料費(高校生)";
+						 } else {
+							 cat_name = "燃料費";
+						 }
+						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
+						 break;
+					 case 4:
+						 if(cat_id == 6){
+							 cat_name = "駐車場代(高校生)";
+						 } else {
+							 cat_name = "駐車場代";
+						 }
+						 con_name = content + "@" + place + " " + cat_name;
+						 break;
+					 case 5:
+						 if(cat_id == 6){
+							 cat_name = "高速代(高校生)";
+						 } else {
+							 cat_name = "高速代";
+						 }
+						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
+						 break;
+					 case 6:
+						 if(cat_id == 6){	 
+							 cat_name = "レンタカー代(高校生)";
+						 } else {
+							 cat_name = "レンタカー代";
+						 }
+						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
+						 break;
 					 default:
-						 con_name = content;
+						 if(cat_id == 6){
+							 con_name = content + "(高校生)";
+						 } else {
+							 con_name = content;
+						 }
 						 break;
 				 }
 				 return con_name;
 			 }
-
+			 
 			 //枚数入力型項目の整形
 			 function shapingContentNameB(content, sheets) {
-				 console.log(content);
 				 var cat_name = "の用紙代（";
 				 var con_name = content + cat_name + sheets +"枚）";
 				 return con_name;
@@ -395,7 +441,6 @@
 
 			 //自動入力される値を渡す部分
 			 function setHidden(list, content) {
-				 console.log(business[list.business]+account[list.account]+business_detailed[list.business_detailed]);
 				 if(business[list.business] != null && account[list.account] != null && business_detailed[list.business_detailed] != null) {
 					 var behind_text = "<input type='hidden' value='";
 					 var behind_text2 = "<input type='hidden' name='";
@@ -406,7 +451,7 @@
 					 hidden += behind_text2 + "staff' value='<?=$staff?>'>";
 					 hidden += behind_text2 + "bill_to' value='<?=$bill_to?>'>";
 					 hidden += behind_text2 + "item' value='statement'></br></br>";
-					 var display = content + " " + business[list.bussiness] + " " + account[list.account] + " " + business_detailed[list.business_detailed] + "</br></br>";
+					 var display = content + " " + business[list.business] + " " + business_detailed[list.business_detailed] + " " + account[list.account] + "</br></br>";
 					 document.getElementById('hidden').innerHTML = hidden;
 					 document.getElementById('display').innerHTML = display;
 				 } else {
@@ -417,17 +462,22 @@
 			 //表示方法の選別関数
 			 function dispId(disp) {
 				 var disp_id;
-				 if(~disp.indexOf('交通費')) disp_id = 0;
-				 else if(~disp.indexOf('会場')) disp_id = 1;
-				 else if(~disp.indexOf('枚数')) disp_id = 2;
-				 else disp_id = 3;
-				 console.log("dispid"+disp_id);
+				 if(~disp.indexOf('')) disp_id = 4;
+				 if(~disp.indexOf('運賃')) disp_id = 0;
+				 else if(~disp.indexOf('会場費')) disp_id = 1;
+				 else if(~disp.indexOf('用紙代')) disp_id = 2;
+				 else if(~disp.indexOf('切手')) disp_id = 2;
+				 else if(~disp.indexOf('ガソリン代')) disp_id = 3;
+				 else if(~disp.indexOf('駐車場代')) disp_id = 4;
+				 else if(~disp.indexOf('高速料金')) disp_id = 5;
+				 else if(~disp.indexOf('レンタカー代')) disp_id = 6;
+				 else disp_id = 7;
 				 return disp_id;
 			 }
 
 			 //内容を触ると表示画面が変更される
-			 //内容に交通費が含まれている時
-			 //  disp_id==0：place、destinationを表示、sheetsを削除
+			 //内容に運賃が含まれている時
+			 //  disp_id==0 3 5 6：place、destinationを表示、sheetsを削除
 			 //内容に会場代が含まれている時
 			 //  disp_id==1：placeを表示、destination、sheetsを削除
 			 //内容に枚数などが含まれている時
@@ -439,6 +489,10 @@
 				 var con_val = getContentFromSelect(data);
 				 switch (disp_id) {
 					 case 0:
+					 case 3:
+					 case 4:
+					 case 5:
+					 case 6:
 						 dispPlaceTitle();
 						 dispPlaceOption(data, cat_id);
 						 dispPlaceButton();
@@ -464,7 +518,7 @@
 						 } else {
 							 var des_val = getDestinationFromSelect();
 						 }
-						 content = shapingContentNameA(con_val, pla_val, des_val, data, 0);
+						 content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 						 break;
 
 					 case 1:
@@ -488,7 +542,7 @@
 						 }
 						 content = shapingContentNameA(con_val, pla_val,  "", data, 1);
 						 break;
-
+						 
 					 case 2:
 						 disappPlaceTitle();
 						 disappPlace();
@@ -535,7 +589,7 @@
 				 
 				 //データをjsonに登録
 				 var data = <?=json_encode($data)?>;
-				 				 
+				 
 				 displayCategory(data, cat_id);
 				 //支払先のオプション表示
 				 dispPayeeOption(data, cat_id);
@@ -562,12 +616,17 @@
 				 var content;
 				 switch (disp_id) {
 					 case 0:
-						 content = shapingContentNameA(con_val, pla_first, des_first, data, 0);
 					 case 1:
-						 content = shapingContentNameA(con_val, pla_first, des_first, data, 1);
+					 case 3:
+					 case 4:
+					 case 5:
+					 case 6:
+						 content = shapingContentNameA(con_val, pla_first, des_first, data, disp_id);
+						 break;
 					 case 2:
 						 var sheets = getSheets();
 						 content = shapingContentNameB(con_val, sheets);
+						 break;
 					 default:
 						 content = con_val;
 				 }
@@ -609,7 +668,6 @@
 					 if(destination_check) {
 						 var con_val = document.getElementById('content-select').value;
 						 var pla_val = document.getElementById('place-select').value;
-						 console.log(this.value);
 						 content = shapingContentNameA(con_val, pla_val, this.value, data, cat_id);
 						 dispDestinationTextbox();
 						 var list = selectContentArray(data.list);
@@ -631,27 +689,27 @@
 					 var con_val = this.value;
 					 var pla_val = getPlaceFromSelect();
 					 var des_val = getDestinationFromSelect();
+					 getContentFromSelect(data);
 					 var disp_id = dispId(getContentFromSelect(data));
 					 var sheets = getSheets();
 					 var content;
 					 switch (disp_id) {
 						 case 0:
-							 content = shapingContentNameA(con_val, pla_val, des_val, data, 0);
-							 break;
 						 case 1:
-							 content = shapingContentNameA(con_val, pla_val, des_val, data, 1);
+						 case 3:
+						 case 4:
+						 case 5:
+						 case 6:
+							 content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 							 break;
 						 case 2:
-							 console.log(con_val+"@@@");
 							 content = shapingContentNameB(con_val, sheets);
-							 console.log(content);
 							 break;
 						 default:
 							 content = con_val;
 							 break;
 					 }
 					 var list = selectContentArray(data.list);
-					 console.log(content);
 					 setHidden(list, content);//ここでcontentの値を渡す
 				 });
 
@@ -695,7 +753,7 @@
 				<span id="category"></span></br>
 
 				日付</br>
-				<input type="date" name="date"></br>
+				<input type="date" name="date" value="<?echo date('Y-m-');?>"></br>
 
 				支払先</br>
 				<select name="payee" id="payee"></select></br>
