@@ -666,9 +666,10 @@
 				 //行き先を触るとtextBoxの中身を変更する
 				 $(document).on('change', '#destination-select', function(){
 					 if(destination_check) {
-						 var con_val = document.getElementById('content-select').value;
-						 var pla_val = document.getElementById('place-select').value;
-						 content = shapingContentNameA(con_val, pla_val, this.value, data, cat_id);
+						 var con_val = getContentFromSelect(data);
+						 var pla_val = getPlaceFromSelect();
+						 var disp_id = dispId(con_val);
+						 content = shapingContentNameA(con_val, pla_val, this.value, data, disp_id);
 						 dispDestinationTextbox();
 						 var list = selectContentArray(data.list);
 						 setHidden(list, content);//ここでcontentの値を渡す
@@ -690,7 +691,7 @@
 					 var pla_val = getPlaceFromSelect();
 					 var des_val = getDestinationFromSelect();
 					 getContentFromSelect(data);
-					 var disp_id = dispId(getContentFromSelect(data));
+					 var disp_id = dispId(selectContentArray(data.list).display);
 					 var sheets = getSheets();
 					 var content;
 					 switch (disp_id) {
@@ -718,7 +719,7 @@
 					 var con_val = getContentFromSelect(data);
 					 var pla_val = this.value;
 					 var des_val = getDestinationFromSelect();
-					 var disp_id = dispId(con_val);
+					 var disp_id = dispId(selectContentArray(data.list).display);
 					 content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 					 var list = selectContentArray(data.list);
 					 setHidden(list, content);//ここでcontentの値を渡す
@@ -729,7 +730,7 @@
 					 var con_val = getContentFromSelect(data);
 					 var pla_val = getPlaceFromSelect();
 					 var des_val = this.value;
-					 var disp_id = dispId(con_val);
+					 var disp_id = dispId(selectContentArray(data.list).display);
 					 var content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 					 var list = selectContentArray(data.list);
 					 setHidden(list, content);//ここでcontentの値を渡す
