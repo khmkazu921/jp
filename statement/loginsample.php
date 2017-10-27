@@ -5,7 +5,7 @@ session_start();
 $client = new Google_Client();
 $client->setClientId('709072939097-hbun9dp9cjuq9q45bsoqrverfhp49esk.apps.googleusercontent.com');
 $client->setClientSecret('u3-EXdB_660nU5HYxCYRoaB9');
-$client->setRedirectUri('http://localhost:8888/statement/google.php');
+$client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/statement/getuser.php');
 $service = new Google_Service_Drive($client);
 
 //リダイレクトされてきた場合に更新してトークンをセット
@@ -33,16 +33,26 @@ if (isset($_SESSION['token'])) {
 		
 		//DB内のユーザ検索
 		$dbh = connectDb();
-		//$st = $dbh->prepare('SELECT * FROM staff WHERE staffid = ?');
-		//$st->execute(array($staffid));
+		$st = $dbh->prepare('SELECT * FROM staff WHERE staffid = ?');
+		$st->execute(array($staffid));
 
 		//ユーザが存在した時のみSESSIONにstaffを追加
-		//if($st->fetch(PDO::FETCH_ASSOC)) {		
-			$_SESSION['staff'] = $staff;
-			$_SESSION['client'] = $client;
-			header('Location: http://'.$_SERVER['HTTP_HOST']."/statement/start.php");
+		if($st->fetch(PDO::FETCH_ASSOC)) {
+			header('Location: http://'.$_SERVER['HTTP_HOST'].'/statement/start.php');
 			exit;
-		//}
+/*
+			//echo "既に登録されています<br>タブを閉じても大丈夫です";
+			exit;
+		} else {
+			$st2 = $dbh->prepare("INSERT INTO staff (name, staffid, mail) VALUES (:name, :staffid, :mail)");
+			$st2->bindParam(':name', $staff['name'], PDO::PARAM_STR);
+			$st2->bindParam(':staffid', $staffid, PDO::PARAM_STR);
+			$st2->bindParam(':mail', $staff['email'], PDO::PARAM_STR);
+			$st2->execute();
+			header('Location: http://'.$_SERVER['HTTP_HOST'].'/statement/start.php');
+			//echo "登録完了<br>タブを閉じても大丈夫です";
+			exit;*/
+		}
 	} catch (PDOException $e) {
 		echo $e->getMessage();
 	}
@@ -51,11 +61,11 @@ if (isset($_SESSION['token'])) {
 //トークンがセットされていなかったら
 else {
     // 認証用URL取得
-    $client->setScopes(Google_Service_Oauth2::USERINFO_PROFILE);
+    $client->setScopes("https://www.googleapis.com/auth/userinfo.profile email");
     $authUrl = $client->createAuthUrl();
-    echo '<a href="'.$authUrl.'">アプリケーションのアクセスを許可してください。</a>';
+    echo '<a href="'.$authUrl.'">経費発生報告のためにユーザ登録をします</a><br>次のページでdot-jpアカウントを選択してください';
 }
-
 
 ?>
 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />

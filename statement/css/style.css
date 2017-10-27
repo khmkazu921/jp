@@ -1,0 +1,71 @@
+h2 {
+    border-bottom: solid 3px #cce4ff;
+    position: relative;
+}
+
+h2:after {
+    position: absolute;
+    content: " ";
+    display: block;
+    border-bottom: solid 3px #5472cd;
+    bottom: -3px;
+    width: 15%;
+}
+
+h1 {
+    background: linear-gradient(transparent 70%, #a7d6ff 70%);
+}
+
+.square_btn{
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #668ad8;/*ボタン色*/
+    color: #FFF;
+    border-bottom: solid 4px #627295;
+    border-radius: 3px;
+}
+
+.square_btn:active{/*ボタンを押したとき*/
+    -ms-transform: translateY(4px);
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
+}
+
+#category input[type="radio"]:checked + label {
+    -ms-transform: translateY(4px);
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);
+    background: #4c6aad;
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);
+    border-bottom: none;
+}
+
+#category label{
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #668ad8;
+    color: #FFF;
+    border-bottom: solid 4px #627295;
+    border-radius: 3px;
+}
+
+#category input[type='radio'] {
+    display: none;
+}
+
+select{
+    font-size: 14px;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: rgb(255, 152, 0, 0.1);
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    padding: 5px 20px;
+    color: #666666;
+}
+

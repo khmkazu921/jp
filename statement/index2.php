@@ -1,24 +1,20 @@
-<!DOCTYPE html>
-<html lang="ja">
-	<?php
-	session_start();
+<?php
+session_start();
 
-	require_once('functions.php');		
 
-	//ログイン検証
-	//login_confirmation();
+//login_confirmation();
+phpinfo():	
+$staff = $_POST['staff'];
+$bill_to = $_POST['bill_to'];
+require_once('functions.php');		
+//listだけcategoryによって絞る
+$dbh = connectDb();
+$sql = "";
 
-	$staff = $_POST['staff'];
-	$bill_to = $_POST['bill_to'];
-
-	//listだけcategoryによって絞る
-	$dbh = connectDb();
-	$sql = "";
-
-	if(isset($_POST['category']))
-		$sql = "SELECT * FROM list WHERE category='" . $_POST['category'] . "'";
+/*
+if(isset($_POST['category'])) {
+	$sql = "SELECT * FROM list WHERE category='" . $_POST['category'] . "'";
 	$st = $dbh->query($sql);
-
 	$data['list'] = $st->fetchAll(PDO::FETCH_ASSOC);
 
 	//その他は普通に取得
@@ -27,7 +23,15 @@
 		$st = $dbh->query("SELECT * FROM " . $val);
 		$data[$val] = $st->fetchAll(PDO::FETCH_ASSOC);
 	}//データベース取得
-	?>
+} else {
+	header("Location: http://'.$_SERVER['HTTP_HOST'].'/statement/login.php/");
+	exit;
+}*/
+header('Content-type: text/html;');
+header('Content-Transfer-Encoding: binary');
+?>
+	<!DOCTYPE html>
+	<html lang="ja">
 		<head>
 			<meta charset="UTF-8">
 			<title>経費発生報告フォーム</title>
@@ -35,7 +39,6 @@
 			<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 			<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 			<link rel="stylesheet" href="css/buttons.css">
-			<link rel="stylesheet" href="css/style.css">
 			
 			<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 			<script type="text/javascript" src="js/buttons.js"></script>
@@ -44,7 +47,7 @@
 			 var account = ["交通費", "通信費", "消耗品費", "図書費", "印刷費", "会議費", "レンタル費", "会費", "適用不明"];
 			 var business_detailed = ["MTG", "支部維持その他", "集客", "説明会", "集客イベント", "選考会", "二次選考", "学生集客その他", "継続訪問", "新規訪問", "訪問その他", "実地フォロー", "初回イベント", "中間イベント", "最終イベント", "学生フォローその他", "全社業務", "その他"];
 			 var business = ["全体","インターン","グローバル","未来"];
-			 var bill_to = ["つくば", "事務局", "未来", "プロモ"];
+			 //var bill_to = ["つくば", "事務局", "未来", "プロモ"];
 			 var content_check = false;
 			 var place_check = false;
 			 var payee_check = false;
@@ -53,8 +56,7 @@
 			 var cat_id = <?=$_POST['category']?>;
 			 
 			 function selectFilter(element, id) {
-				 if (element[this.name] == this.id) return true;
-				 return false;
+				 return element[this.name] == this.id;
 			 }
 
 			 function getContentId() {
@@ -85,11 +87,9 @@
 			 function dispPayeeOption(data, category) {
 				 //カテゴリーに当てはまるものを抽出
 				 var text;
-				 var id = 0;//{'name':'category', 'id': category}; //カテゴリーのvalue
-				 
 				 //支払先の表示
-				 var payee_f = data.payee.filter(selectFilter, id);
-				 for(var val of payee_f) {
+
+				 for(var val of data.payee[0]) {
 					 text += "<option value=\"" + val.name + "\">" + val.name + "</option>";
 				 }
 				 document.getElementById('payee').innerHTML = text;
@@ -97,7 +97,7 @@
 
 			 //payeeボタンの設置
 			 function dispPayeeButton() {
-				 var text = "<input type='button' class='button button-border-primary button-rounded' value='直接入力' onClick='dispPayeeTextbox()'>";
+				 var text = "<input type='button' class='button button-border-primary button-rounded' value='変更' onClick='dispPayeeTextbox()'></br>";
 				 document.getElementById('payee-button').innerHTML = text;
 			 }			 
 			 
@@ -135,14 +135,14 @@
 				 for(var val of list_f) {
 					 text += "<option value='" + val.id + "'>" + val.display +  "</option>";
 				 }
-				 text += "</select>";
+				 text += "</select><br>";
 				 document.getElementById('content').innerHTML = text;
 				 return list_f[0].name;
 			 }
 
 			 //contentボタンの設置
 			 function dispContentButton() {
-				 var text = "<input type='button' class='button button-border-primary button-rounded' value='直接入力' onClick='dispContentTextbox()'>";
+				 var text = "<input type='button' class='button button-border-primary button-rounded' value='変更' onClick='dispContentTextbox()'><br><br>";
 				 document.getElementById('content-button').innerHTML = text;
 			 }
 
@@ -159,7 +159,7 @@
 
 			 //contentのタイトル表示
 			 function dispContentTitle() {
-				 document.getElementById('content-title').innerHTML = "<h2>内容</h2>";
+				 document.getElementById('content-title').innerHTML = "内容<br>";
 			 }
 
 			 function dissapContentTitle() {
@@ -171,7 +171,7 @@
 				 var data = <?=json_encode($data)?>;
 				 content_check = true;
 				 var con_val = getContentFromSelect(data);
-				 var out = "<input type='text' name='name' id='textbox-content' value='" + con_val + "'><br>";
+				 var out = "<input type='text' name='name' id='textbox-content' value='" + con_val + "'></br>";
 				 document.getElementById('out-of-textbox-content').innerHTML = out;
 			 }
 
@@ -184,7 +184,7 @@
 
 			 //destinationボタンの設置
 			 function dispDestinationButton() {
-				 var text = "<input type='button' class='button button-border-primary button-rounded' value='直接入力' onClick='dispDestinationTextbox()'>";
+				 var text = "<input type='button' class='button button-border-primary button-rounded' value='変更' onClick='dispDestinationTextbox()'></br>";
 				 document.getElementById('destination-button').innerHTML = text;
 			 }
 
@@ -193,7 +193,7 @@
 			 }
 
 			 function dispDestinationTitle() {
-				 document.getElementById('destination-title').innerHTML = "<h2>行き先</h2>";
+				 document.getElementById('destination-title').innerHTML = "行き先<br>";
 			 }
 
 			 function disappDestinationTitle() {
@@ -208,7 +208,7 @@
 				 for(var val of dest) {
 					 text += "<option value='" + val.name + "'>" + val.name +  "</option>";
 				 }
-				 text += "</select>";
+				 text += "</select></br>";
 				 document.getElementById('destination').innerHTML = text;
 				 return dest[0].name;
 			 }
@@ -231,7 +231,7 @@
 			 function dispDestinationTextbox() {
 				 destination_check = true;
 				 var des_val = getDestinationFromSelect();
-				 var out = "<input type='text' name='name' id='textbox-destination' value='" + des_val + "'>";
+				 var out = "<input type='text' name='name' id='textbox-destination' value='" + des_val + "'></br>";
 				 document.getElementById('out-of-textbox-destination').innerHTML = out;
 			 }
 
@@ -248,7 +248,7 @@
 
 			 //placeボタンの設置
 			 function dispPlaceButton() {
-				 var text = "<input type='button' class='button button-border-primary button-rounded' value='直接入力' onClick='dispPlaceTextbox()'>";
+				 var text = "<input type='button' class='button button-border-primary button-rounded' value='変更' onClick='dispPlaceTextbox()'></br><br>";
 				 document.getElementById('place-button').innerHTML = text;
 			 }
 
@@ -264,7 +264,7 @@
 			 //placeのオプションの表示
 			 function dispPlaceOption(data, category) {
 				 //カテゴリーに当てはまるものを抽出
-				 var id = 0;//{'name':'category', 'id': category};
+				 var id = {'name':'category', 'id': category};
 				 var place_f = data.place.filter(selectFilter, id);
 				 
 				 //場所の表示
@@ -273,7 +273,7 @@
 					 text += "<option value='" + val.name + "'>" + val.name +  "</option>";
 				 }
 				 
-				 text += "</select><br>"; //$$$$$$$$$$$$$$ここ
+				 text += "</select><br>";
 				 document.getElementById('place').innerHTML = text;
 				 if(place_f[0] == null) {
 					 return "";
@@ -284,7 +284,7 @@
 			 
 			 //placeのタイトルの設置
 			 function dispPlaceTitle() {
-				 document.getElementById('place-title').innerHTML = "<h2>場所</h2>議員事務所関係は事務所の名前です<br>";
+				 document.getElementById('place-title').innerHTML = "場所<br>";
 			 }
 			 
 			 function disappPlaceTitle() {
@@ -301,7 +301,7 @@
 			 function dispPlaceTextbox() {
 				 place_check = true;
 				 var pla_val = getPlaceFromSelect();
-				 var out = "<input type='text' name='name' id='textbox-place' value='" + pla_val + "'><br>";
+				 var out = "<input type='text' name='name' id='textbox-place' value='" + pla_val + "'></br>";
 				 document.getElementById('out-of-textbox-place').innerHTML = out;
 			 }
 
@@ -327,12 +327,12 @@
 			 
 			 //sheetsの表示
 			 function dispSheetsTextbox() {
-				 var out = "<input type='text' value='1' name='sheets' id='textbox-sheets'>";
+				 var out = "<br><input type='text' value='1' name='sheets' id='textbox-sheets'></br>";
 				 document.getElementById('out-of-textbox-sheets').innerHTML = out;
 			 }
 
 			 function dispCostTitle() {
-				 document.getElementById('cost-title').innerHTML = "<h2>【STEP4】金額</h2>払った金額を入力";
+				 document.getElementById('cost-title').innerHTML = "金額";
 			 }
 
 			 function disappCostTitle() {
@@ -355,7 +355,7 @@
 			 }
 
 			 function dispSheetsTitle() {
-				 document.getElementById('sheets-title').innerHTML = "<h2>枚数</h2>";
+				 document.getElementById('sheets-title').innerHTML = "枚数";
 			 }
 
 			 function disappSheetsTitle() {
@@ -382,7 +382,7 @@
 						 con_name = content + "@" + place + cat_name;
 						 break;
 					 case 3:
-						 cat_name = cat_id == 6 ? "燃料費(高校生)" : "燃料費";																	
+						 cat_name = cat_id == 6 ? "燃料費(高校生)" : "燃料費";
 						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
 						 break;
 					 case 4:
@@ -394,11 +394,11 @@
 						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
 						 break;
 					 case 6:
-						 cat_name = cat_id == 6 ? "レンタカー代(高校生)" : "レンタカー代";						 
+						 cat_name = cat_id == 6 ? "レンタカー代(高校生)" : "レンタカー代";
 						 con_name = content + "@" + place + " " + cat_name + "\r\n(" + destination + ")";
 						 break;
 					 default:
-						 cot_name = cat_id == 6 ? content + "(高校生)" : content;
+						 con_name = cat_id == 6 ? (content + "(高校生)") : content;
 						 break;
 				 }
 				 return con_name;
@@ -413,18 +413,18 @@
 
 			 //自動入力される値を渡す部分
 			 function setHidden(list, content) {
-				 if(business[list.business] != null && account[list.account] != null
-					&& business_detailed[list.business_detailed] != null) {
+				 if(business[list.business] != null && account[list.account] != null && business_detailed[list.business_detailed] != null) {
 					 var behind_text = "<input type='hidden' value='";
 					 var behind_text2 = "<input type='hidden' name='";
-					 var hidden = behind_text + business[list.business] + "' name='business'>"
-								+ behind_text + account[list.account] + "' name='account'>"
-								+ behind_text + business_detailed[list.business_detailed]
-								+ "' name='business_detailed'>" + behind_text + content + "' name='name'>"
-								+ behind_text2 + "staff' value='<?=$staff?>'>" + behind_text2
-								+ "bill_to' value='<?=$bill_to?>'>" + behind_text2 + "item' value='statement'>";
-					 var display = content + "<br> " + business[list.business] + " "
-								 + business_detailed[list.business_detailed] + " " + account[list.account] + "</br>";
+					 console.log(business[list.business]);
+					 var hidden = behind_text + business[list.business] + "' name='business'>";
+					 hidden += behind_text + account[list.account] + "' name='account'>";
+					 hidden += behind_text + business_detailed[list.business_detailed] + "' name='business_detailed'>";
+					 hidden += behind_text + content + "' name='name'>";
+					 hidden += behind_text2 + "staff' value='<?=$staff?>'>";
+					 hidden += behind_text2 + "bill_to' value='<?=$bill_to?>'>";
+					 hidden += behind_text2 + "item' value='statement'></br></br>";
+					 var display = content + " " + business[list.business] + " " + business_detailed[list.business_detailed] + " " + account[list.account] + "</br></br>";
 					 document.getElementById('hidden').innerHTML = hidden;
 					 document.getElementById('display').innerHTML = display;
 				 } else {
@@ -449,6 +449,13 @@
 			 }
 
 			 //内容を触ると表示画面が変更される
+			 //内容に運賃が含まれている時
+			 //  disp_id==0 3 5 6：place、destinationを表示、sheetsを削除
+			 //内容に会場代が含まれている時
+			 //  disp_id==1：placeを表示、destination、sheetsを削除
+			 //内容に枚数などが含まれている時
+			 //  disp_id==2：sheetsを表示、place、destinationを削除
+			 //その他はdisp_id：表示しない
 			 function first(data) {
 				 var list = selectContentArray(data.list);
 				 var disp_id = dispId(list.display);
@@ -471,7 +478,7 @@
 						 //変更ボタンを押していたらテキストボックスも表示
 						 if(content_check) {
 							 dispContentTextbox();
-						 }
+						 }//よくわからない
 						 if(place_check) {
 							 dispPlaceTextbox();
 							 var pla_val = getPlaceFromTextbox();
@@ -617,12 +624,13 @@
 
 				 //場所を触るとtextBoxの中身を変更する
 				 $(document).on('change', '#place-select', function(){
-					 var con_val = getContentFromSelect(data);
+					 var con_val = content_check ? getContentFromTextbox():getContentFromSelect(data);
 					 var des_val = getDestinationFromSelect();
-					 var pla_val = getPlaceFromSelect();
+					 var pla_val = place_check ? getPlaceFromTextbox():getPlaceFromSelect();
 					 var disp_id = dispId(selectContentArray(data.list).display);
-					 content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
+					 var content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 					 var list = selectContentArray(data.list);
+					 console.log(content);
 					 setHidden(list, content);//ここでcontentの値を渡す
 					 if(place_check) {
 						 dispPlaceTextbox();
@@ -632,8 +640,8 @@
 				 //行き先を触るとtextBoxの中身を変更する
 				 $(document).on('change', '#destination-select', function(){
 					 if(destination_check) {
-						 var con_val = getContentFromSelect(data);
-						 var pla_val = getPlaceFromSelect();
+						 var con_val = content_check ? getContentFromTextbox():getContentFromSelect(data);
+						 var pla_val = place_check ? getPlaceFromTextbox():getPlaceFromSelect();
 						 var disp_id = dispId(selectContentArray(data.list).display);
 						 content = shapingContentNameA(con_val, pla_val, this.value, data, disp_id);
 						 dispDestinationTextbox();
@@ -644,7 +652,7 @@
 
 				 //sheetsが変更された時にhiddenが変更させる
 				 $(document).on('keyup', '#textbox-sheets', function(){
-					 var con_val = getContentFromSelect(data);
+					 var con_val = content_check ? getContentFromTextbox():getContentFromSelect(data);
 					 var she_val = getSheets();
 					 content = shapingContentNameB(con_val, she_val);
 					 var list = selectContentArray(data.list);
@@ -654,8 +662,8 @@
 				 //内容のテキストボックスを変更するとhiddenが変更される
 				 $(document).on('keyup', '#textbox-content', function(){
 					 var con_val = this.value;
-					 var pla_val = getPlaceFromSelect();
-					 var des_val = getDestinationFromSelect();
+					 var pla_val = place_check ? getPlaceFromTextbox():getPlaceFromSelect();
+					 var des_val = destination_check ? getDestinationFromTextBox():getDestinationFromSelect();
 					 getContentFromSelect(data);
 					 var disp_id = dispId(selectContentArray(data.list).display);
 					 var sheets = getSheets();
@@ -682,9 +690,9 @@
 
 				 //場所のテキストボックスを変更するとhiddenが変更される
 				 $(document).on('keyup', '#textbox-place', function(){
-					 var con_val = getContentFromSelect(data);
+					 var con_val = content_check ? getContentFromTextbox():getContentFromSelect(data);
 					 var pla_val = this.value;
-					 var des_val = getDestinationFromSelect();
+					 var des_val = destination_check ? getDestinationFromTextBox():getDestinationFromSelect();
 					 var disp_id = dispId(selectContentArray(data.list).display);
 					 content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 					 var list = selectContentArray(data.list);
@@ -693,17 +701,15 @@
 				 
 				 //行き先のテキストボックスを変更するとhiddenが変更される
 				 $(document).on('keyup', '#textbox-destination', function(){
-					 var con_val = getContentFromSelect(data);
-					 var pla_val = getPlaceFromSelect();
+					 var con_val = content_check ? getContentFromTextbox():getContentFromSelect(data);
+					 var pla_val = place_check ? getPlaceFromTextbox():getPlaceFromSelect();
 					 var des_val = this.value;
 					 var disp_id = dispId(selectContentArray(data.list).display);
 					 var content = shapingContentNameA(con_val, pla_val, des_val, data, disp_id);
 					 var list = selectContentArray(data.list);
 					 setHidden(list, content);//ここでcontentの値を渡す
 				 });
-				 
 			 });
-			 
 			 
 			 function numOnly() {
 				 m = String.fromCharCode(event.keyCode);
@@ -715,31 +721,26 @@
 		</head>
 		<body>
 			
-			<h1>経費発生報告フォーム</h1>
-			<h2>変更ボタンを押してテキストボックスに入力できます</h2>
+			<h1>経費発生報告：入力型</h1>
 
-			<form id="statement" method="post" action="edit.php">
-				<h2>カテゴリー</h2>
+			<form id="statement" method="post" action="insert.php">
+				カテゴリー</br>
 				<span id="category"></span></br>
 
-				<h2>【STEP1】使用用途の詳細</h2>
-				料金を払った用途を選んでください<br>
-				<span id="content"></span><br>
-				<span id="out-of-textbox-content"></span>
-				<span id="content-button"></span>
-				
-				<h2>【STEP2】日付</h2>
-				払った日付を書いてください</br>
-				<input type="date" name="date" value="<?php echo date('Y-m-'); ?>"></br>
+				日付</br>
+				<input type="date" name="date" value="<?echo date('Y-m-');?>"></br>
 
-				<h2>【STEP3】支払先</h2>
-				領収書の正式名称を書いてください</br>
-				<select name="payee" id="payee"></select><br>
+				支払先</br>
+				<select name="payee" id="payee"></select></br>
 				<span id="textbox-payee"></span>
 				<span id="payee-button"></span><br>
 
-				<span id="place-title"></span>
+				内容</br>
+				<span id="content"></span>
+				<span id="out-of-textbox-content"></span>
+				<span id="content-button"></span>
 
+				<span id="place-title"></span>
 				<span id="place"></span>
 				<span id="out-of-textbox-place"></span>
 				<span id="place-button"></span>
@@ -752,16 +753,12 @@
 				<span id="sheets-title"></span>
 				<span id="out-of-textbox-sheets"></span>
 
-				<span id="cost-title"></span><br>
+				<span id="display"></span>
+				<span id="cost-title"></span></br>
 
-				<input type="number" id="cost" name="cost" onkeyDown="return numOnly()" value=0>円
+				<input type="number" id="cost" name="cost" onkeyDown="return numOnly()">円
 				<span id="hidden"></span>
-
-				<h2>自動入力</h2>
-				入力される情報は以下です<br>
-				<span id="display"></span>		
-
-				<p>合っていたら押してください<br>
+				<p>
 					<input type="submit" value="追加" class="button button-border-primary button-rounded">
 				</p>
 				
@@ -772,4 +769,4 @@
 			<a href="setting.php">設定</a>
 			
 		</body>
-</html>
+	</html>

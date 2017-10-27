@@ -1,5 +1,13 @@
 <?php
 
+function setGoogleCliant() {
+	$client = new Google_Client();
+	$client->setClientId('709072939097-hbun9dp9cjuq9q45bsoqrverfhp49esk.apps.googleusercontent.com');
+	$client->setClientSecret('u3-EXdB_660nU5HYxCYRoaB9');
+	$client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/statement/login.php');
+	return $client;
+}
+
 class Staff
 {
     public $name = "";
@@ -18,7 +26,7 @@ class Staff
 
 function login_confirmation() {
 	if(!isset($_SESSION['staff'])) {
-		header('Location: http://'.$_SERVER['HTTP_HOST'].'/statement/google.php/' ,true, 301);
+		header('Location: http://'.$_SERVER['HTTP_HOST'].'/statement/google.php' ,true, 301);
 		exit;
 	}
 }
@@ -35,7 +43,6 @@ function getGoogleUserInfo($accessToken) {
 }
 
 function connectDb() {
-
 	define('DSN','mysql:host=localhost;dbname=form_study');
 	define('DB_USER','root');
 	define('DB_PASSWORD','qSJNFXBqw9Z5542D');

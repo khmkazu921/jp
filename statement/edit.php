@@ -20,7 +20,7 @@ try {
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>補足設定</title>
+		<title>登録</title>
 	</head>
 	<body>
 		
@@ -43,17 +43,16 @@ try {
 		$st2 = $dbh->prepare($insert);
 		$st2->execute($param);
 
-		echo var_dump($param);
-		echo $insert;
 		$dbh = null;
 		?>
-		<p>登録が完了しました。<br /><a href="setting.php">戻る</a></p>
+		<p>登録が完了しました。<br /><a href="start.php">戻る</a></p>
 		<?php
-		echo var_dump($_POST);
+		$dbh2 = connectDb();
+		$item = htmlspecialchars($_POST['item']);
+		$sql = "SELECT * FROM " . $item . "ORDER BY id";
+		$st3 = $dbh2 -> query($sql);
+		$data2 = $st3->fetchAll(PDO::FETCH_ASSOC);
 		?>
-
-		
-	</body>
 
 	<h1>挿入</h1>
 	<form action="insert.php" method="post">
@@ -85,7 +84,7 @@ try {
 			<td>変更</td><td>削除</td>
 		</tr>
 		<?php
-		foreach (array_values($data) as $row) {
+		foreach (array_values($data2) as $row) {
 		?>
 			<?php
 			foreach (array_values($row) as $val) {
@@ -98,6 +97,8 @@ try {
 			<?php
 			}
 			?>
+
+			<?php
 			<td>
 				<form action="update.php" method="post">
 					<input type="submit" value="変更する">
@@ -123,6 +124,7 @@ try {
 					<input type="hidden" name="name" value="<?=$row["name"]?>">
 				</form>
 			</td>
+			?>
 		</tr> 
 		<?php
 		}
