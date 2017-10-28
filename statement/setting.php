@@ -5,14 +5,13 @@
 	<body>
 		
 		<form action="setting_table.php" method="post">
-			<select name="item">
+			<select name="item" size=6>
 			<option value="list">一覧</option>
 			<option value="place">場所</option>
 			<option value="category">カテゴリー</option>
 			<option value="payee">支払先</option>
 			<option value="staff">スタッフ</option>
 			<option value="statement">精算書</option>
-
 			</select></br>
 
 		<input type="submit" value="選択">

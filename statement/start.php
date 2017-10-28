@@ -77,11 +77,11 @@ $data = $st->fetchAll(PDO::FETCH_ASSOC);
 			<option value="未来">未来</option>
 		</select></br>
 		<h2>名前</h2>
-		<input type="text" name="staff" value="<?=$staff->name?>"></br></br>
+		<input type="text" name="user" value="<?=$staff->name?>"></br></br>
 		<input type="submit" class="button button-border-primary button-rounded" value="詳細の入力">
 	</form>
 	<br>
-	<a href="login.php" class="button button-border-primary button-rounded">別のユーザでログイン</a><br>
+	<a href="login.php">別のユーザでログイン</a><br>
 	<a href="setting.php" class>設定</a></br>
 	<p>
 		精算書自動作成</br>

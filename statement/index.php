@@ -8,7 +8,7 @@
 	//ログイン検証
 	//login_confirmation();
 
-	$staff = $_POST['staff'];
+	$user = $_POST['user'];
 	$bill_to = $_POST['bill_to'];
 
 	//listだけcategoryによって絞る
@@ -154,6 +154,7 @@
 			 //contentのオプションからの取得
 			 function getContentFromSelect(data) {
 				 var list = selectContentArray(data.list);
+				 if(list == null) return "";
 				 return list.name;
 			 }
 
@@ -421,8 +422,9 @@
 								+ behind_text + account[list.account] + "' name='account'>"
 								+ behind_text + business_detailed[list.business_detailed]
 								+ "' name='business_detailed'>" + behind_text + content + "' name='name'>"
-								+ behind_text2 + "staff' value='<?=$staff?>'>" + behind_text2
-								+ "bill_to' value='<?=$bill_to?>'>" + behind_text2 + "item' value='statement'>";
+								+ behind_text2 + "user' value='<?=$user?>'>" + behind_text2
+								+ "bill_to' value='<?=$bill_to?>'>" + behind_text2 + "item' value='statement'>"
+								+ behind_text2 + "type' value='insert'>";
 					 var display = content + "<br> " + business[list.business] + " "
 								 + business_detailed[list.business_detailed] + " " + account[list.account] + "</br>";
 					 document.getElementById('hidden').innerHTML = hidden;

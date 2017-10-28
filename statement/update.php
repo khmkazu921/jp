@@ -31,22 +31,41 @@ $row = $data[0];
 		<h1>変更画面</h1> 
 		
 		<p><?php //echo $name;?></p>
-		
-		<form action="update_regist.php" method="post">
-			<?php
-			$f = "</br><input type=\"text\" name=\"";
-			$m = "\" value = \"";
-			$b = "\"></br>";
-			foreach (array_keys($row) as $val) {
-				echo $val . $f . $val . $m . $_POST[$val]. $b;
-			}							   
-			$dbh = null;
-			?>
-			
-			<input type="hidden" name="item" value="<?=$item?>">
+		<form action="edit.php" method="post">
+			<table border='1'>
+				<tr>
+					<?php
+					foreach (array_keys($row) as $val) {
+					?>
+						<td><?=$val?></td>
+					<?php
+					}
+					?>
+				</tr>
+				<tr>
+					<?php
+					foreach (array_keys($row) as $val) {
+						if($val == 'id') {
+					?>	
+						<td><?=$_POST[$val]?></td>
+						<input type='hidden' name='id' value='<?=$_POST[$val]?>'>
+					<?php
+					} else {
+					?>	
+						<td>
+							<input type='text' name='<?=$val?>' value='<?=$_POST[$val]?>'>
+						</td>
+					<?php
+					}
+					}
+					?>
+					<input type="hidden" name="item" value="<?=$item?>">
+					<input type='hidden' name='user' value='<?=$_POST['user']?>'>
+					<input type='hidden' name='type' value='update'>
+				</tr>
+			</table>
 			<p><input type="submit" value="変更する"></p>
 		</form>
 		<a href="setting.php">戻る</a>
-				
 	</body>
 </html>
